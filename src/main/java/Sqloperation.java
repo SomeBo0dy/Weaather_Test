@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -175,5 +176,72 @@ public class Sqloperation {
         }
         return list;
     }
+    //获取数据表中数据总条数
+    public static int getTotal(String tableName){
+        String sql = "select count(*) from " + tableName;//获取数据表中数据总条数；
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int total = -1;
+        try {
+            conn = LinkDatabaseInsert.getConnection();
+            pstmt = (PreparedStatement) conn.prepareStatement(sql);
+            rs = (ResultSet) pstmt.executeQuery();
+            rs.next();
+            total = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally{
+            LinkDatabaseInsert.close(pstmt);
+            LinkDatabaseInsert.close(conn);		//必须关闭
+        }
+        return total;
+    }
+    //分页查询
+    public static void getPage(String tableName,int pageSize, int currPage){
+        String sql = "select * from " + tableName + " limit ?,?";
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String name;
+        java.util.Date date;
+        String tempMax;
+        String tempMin;
+        String textDay;
+        int total = getTotal(tableName);
+        int totalPage = total%pageSize == 0 ? total/pageSize : total/pageSize + 1;
+        try {
+            conn = LinkDatabaseInsert.getConnection();
+            pstmt = (PreparedStatement) conn.prepareStatement(sql);
+            pstmt.setInt(2, pageSize);
+            int ofs = pageSize * (currPage - 1);
+            pstmt.setInt(1, ofs);
+            rs = (ResultSet) pstmt.executeQuery();
+            System.out.println("=========================================================");
+            System.out.println("Page:"+currPage+'/'+ totalPage);
+            System.out.println("=========================================================");
+            while (rs.next()){
+                name = rs.getString("name");
+                date = rs.getDate("date");
+                tempMax = rs.getString("tempMax");
+                tempMin = rs.getString("tempMin");
+                textDay = rs.getString("textDay");
+                System.out.print('|' + name + '|');
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
+                System.out.print(simpleDateFormat.format(date) + '|');
+                System.out.print("tempMax:" + tempMax + "℃" + '|');
+                System.out.print("tempMin:" + tempMin + "℃" + '|');
+                System.out.println("textDay:" + textDay + '|');
+            }
+            System.out.println("=========================================================");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally{
+            LinkDatabaseInsert.close(pstmt);
+            LinkDatabaseInsert.close(conn);		//必须关闭
+        }
+    }
+
 }
+
 

@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Scanner;
@@ -21,7 +22,7 @@ public class Java_Test_3 {
             do {
                 System.out.print("请按格式输入想要的指令（#号键退出)!!!:");
                 in = scanner.nextLine();
-            }while(!in.equals("1")&&!in.equals("2")&&!in.equals("#"));
+            }while(!in.equals("1")&&!in.equals("2")&&!in.equals("3")&&!in.equals("#"));
             if (in.equals("#")) break;
             else if(in.equals("1")){
                 Function.printFunction1();
@@ -84,6 +85,28 @@ public class Java_Test_3 {
                 }while(true);
                 if (re.equals("#"))break;
                 else if (re.equals("*"))continue;
+            }else if (in.equals("3")){
+                Function.printFunction3();
+                Boolean flag;
+                do {
+                    System.out.print("请输入每页显示的条数（*号键返回上一菜单，#号键退出)!!!:");
+                    in = scanner.nextLine();
+                    flag = true;
+                    for (int i = 0; i < in.length(); i++) {
+                        if (!Character.isDigit(in.charAt(i))){
+                            flag = false;
+                            break;
+                        }
+                    }
+                }while(!flag&&!in.equals("#")&&!in.equals("*"));
+                if (in.equals("#")) break;
+                else if (in.equals("*")) continue;
+                else{
+                    int pageSize = Integer.parseInt(in);
+                    String rr = Function.function3("city_dailyweather",pageSize);
+                    if (rr.equals("#"))break;
+                    else if (rr.equals("*"))continue;
+                }
             }
         }while (true);
     }
